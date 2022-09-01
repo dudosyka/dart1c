@@ -1,20 +1,56 @@
 import 'package:dart1c/classes/DataField/data_field.dart';
 import 'package:dart1c/classes/Database/database.dart';
 import 'package:dart1c/classes/Field/field.dart';
+import 'package:dart1c/classes/Field/single_dropdown_field.dart';
+import 'package:dart1c/classes/Field/text_field.dart';
+import 'package:dropdown_textfield/dropdown_textfield.dart';
 import 'package:flutter/cupertino.dart';
 
 class Document {
   String name = "";
   List<Field> fields = [];
 
-  static Future<Document?> factory(String name) async {
+  static Future<Document> factory(String name) async {
     Database database = Database();
     Document entity = Document();
     entity.name = name;
+    dynamic structure = await database.getDocumentStructure(name);
+    for (var field in structure) {
+      switch (FieldType.values[field['fieldType'] - 1]) {
+        case FieldType.textField:
+          entity.fields.add(TextField(field['name'], "", FieldType.textField));
+          break;
+        case FieldType.numField:
+          entity.fields.add(TextField(field['name'], "", FieldType.textField));
+          break;
+        case FieldType.dateField:
+          entity.fields.add(TextField(field['name'], "", FieldType.textField));
+          break;
+        case FieldType.enumerationField:
+          entity.fields.add(TextField(field['name'], "", FieldType.textField));
+          break;
+        case FieldType.documentField:
+          entity.fields.add(SingleDropdownField(
+            field['name'],
+            await database.getDropdownByDocument(field['relateTo']),
+            FieldType.documentField,
+          ));
+          break;
+        case FieldType.directoryField:
+          entity.fields.add(TextField(field['name'], "", FieldType.textField));
+          break;
+        case FieldType.dateTimeField:
+          entity.fields.add(TextField(field['name'], "", FieldType.textField));
+          break;
+        case FieldType.dropdown:
+          // TODO: Handle this case.
+          break;
+      }
+    }
     return entity;
   }
 
-  static Future<Document?> createDocument(
+  static Future<Document> createDocument(
     String name,
     List<DataField> fields,
   ) async {

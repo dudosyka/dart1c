@@ -24,4 +24,20 @@ class Database {
     await query(queryString);
     query("ALTER TABLE `document_$name` $relations");
   }
+
+  Future<dynamic> getDocumentStructure(String name) {
+    return query(
+        'select * from `documents_structure` where `document` = "$name"');
+  }
+
+  Future<List<String>> getDropdownByDocument(String name) async {
+    dynamic data = await query('select `title` from `document_$name`');
+    List<String> res = [];
+
+    for (var item in data) {
+      res.add(item['title']);
+    }
+
+    return res;
+  }
 }

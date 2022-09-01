@@ -4,27 +4,16 @@ import 'package:dart1c/classes/document.dart';
 import 'package:flutter/material.dart';
 
 void main() async {
-  Document.createDocument('second', [
-    DataField(
-        name: "name",
-        dataFieldType: DataFieldType.string,
-        linkTo: DataRelation()),
-    DataField(
-        name: "num_field",
-        dataFieldType: DataFieldType.num,
-        linkTo: DataRelation()),
-    DataField(
-      name: "linkField",
-      dataFieldType: DataFieldType.document,
-      required: true,
-      linkTo: DataRelation(document: await Document.factory('first')),
-    )
-  ]);
-  runApp(const MyApp());
+  Document document = await Document.factory("second");
+  runApp(MyApp(
+    document: document,
+  ));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  Document document = Document();
+
+  MyApp({Key? key, required this.document}) : super(key: key);
 
   // This widget is the root of your application.
   @override
@@ -43,13 +32,19 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(
+        title: 'Flutter Demo Home Page',
+        document: this.document,
+      ),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
+  final Document document;
+
+  MyHomePage({Key? key, required this.title, required this.document})
+      : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -63,11 +58,14 @@ class MyHomePage extends StatefulWidget {
   final String title;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<MyHomePage> createState() => _MyHomePageState(document);
 }
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+
+  final Document document;
+  _MyHomePageState(this.document);
 
   void _incrementCounter() {
     setState(() {
@@ -97,31 +95,18 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
+        child: Container(
+          padding: const EdgeInsets.only(left: 20, top: 50, right: 20),
+          child: Column(
+            children: [
+              Text(
+                "${document.name} document form:",
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 28),
+              ),
+              document.renderForm()
+            ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
